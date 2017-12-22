@@ -24,18 +24,19 @@ public final class UploadNotificationConfig implements Parcelable {
     private UploadNotificationStatusConfig completed;
     private UploadNotificationStatusConfig error;
     private UploadNotificationStatusConfig cancelled;
+    private boolean isSingleNotificationMode;
 
     /**
      * Creates a new upload notification configuration with default settings:
      * <ul>
-     *     <li>{@code android.R.drawable.ic_menu_upload} will be used as the icon</li>
-     *     <li>If the user taps on the notification, nothing will happen</li>
-     *     <li>Once the operation is completed (either successfully or with an error):
-     *         <ul>
-     *             <li>the default notification sound will be emitted (or the default notification vibration if the device is in silent mode)</li>
-     *             <li>the notification will remain in the Notification Center until the user swipes it out</li>
-     *         </ul>
-     *     </li>
+     * <li>{@code android.R.drawable.ic_menu_upload} will be used as the icon</li>
+     * <li>If the user taps on the notification, nothing will happen</li>
+     * <li>Once the operation is completed (either successfully or with an error):
+     * <ul>
+     * <li>the default notification sound will be emitted (or the default notification vibration if the device is in silent mode)</li>
+     * <li>the notification will remain in the Notification Center until the user swipes it out</li>
+     * </ul>
+     * </li>
      * </ul>
      */
     public UploadNotificationConfig() {
@@ -62,6 +63,7 @@ public final class UploadNotificationConfig implements Parcelable {
 
     /**
      * Sets the notification title for all the notification statuses.
+     *
      * @param title Title to show in the notification icon
      * @return {@link UploadNotificationConfig}
      */
@@ -75,6 +77,7 @@ public final class UploadNotificationConfig implements Parcelable {
 
     /**
      * Sets the same notification icon for all the notification statuses.
+     *
      * @param resourceID Resource ID of the icon to use
      * @return {@link UploadNotificationConfig}
      */
@@ -88,6 +91,7 @@ public final class UploadNotificationConfig implements Parcelable {
 
     /**
      * Sets the same notification icon for all the notification statuses.
+     *
      * @param iconColorResourceID Resource ID of the color to use
      * @return {@link UploadNotificationConfig}
      */
@@ -101,6 +105,7 @@ public final class UploadNotificationConfig implements Parcelable {
 
     /**
      * Sets the same large notification icon for all the notification statuses.
+     *
      * @param largeIcon Bitmap of the icon to use
      * @return {@link UploadNotificationConfig}
      */
@@ -146,7 +151,7 @@ public final class UploadNotificationConfig implements Parcelable {
     /**
      * Sets whether or not to clear the notification when the user taps on it
      * for all the notification statuses.
-     *
+     * <p>
      * This would not affect progress notification, as it's ongoing and managed by the upload
      * service.
      *
@@ -179,9 +184,18 @@ public final class UploadNotificationConfig implements Parcelable {
      * @param channelId notification channel ID
      * @return {@link UploadNotificationConfig}
      */
-    public final UploadNotificationConfig setNotificationChannelId(@NonNull String channelId){
+    public final UploadNotificationConfig setNotificationChannelId(@NonNull String channelId) {
         this.notificationChannelId = channelId;
         return this;
+    }
+
+    public final UploadNotificationConfig setSingleNotificationMode(boolean isSingleNotificationMode) {
+        this.isSingleNotificationMode = isSingleNotificationMode;
+        return this;
+    }
+
+    public boolean isSingleNotificationMode() {
+        return isSingleNotificationMode;
     }
 
     public boolean isRingToneEnabled() {
@@ -204,7 +218,7 @@ public final class UploadNotificationConfig implements Parcelable {
         return cancelled;
     }
 
-    public String getNotificationChannelId(){
+    public String getNotificationChannelId() {
         return notificationChannelId;
     }
 
@@ -221,6 +235,7 @@ public final class UploadNotificationConfig implements Parcelable {
         dest.writeParcelable(this.completed, flags);
         dest.writeParcelable(this.error, flags);
         dest.writeParcelable(this.cancelled, flags);
+        dest.writeByte((byte) (isSingleNotificationMode ? 1 : 0));
     }
 
     protected UploadNotificationConfig(Parcel in) {
@@ -230,9 +245,11 @@ public final class UploadNotificationConfig implements Parcelable {
         this.completed = in.readParcelable(UploadNotificationStatusConfig.class.getClassLoader());
         this.error = in.readParcelable(UploadNotificationStatusConfig.class.getClassLoader());
         this.cancelled = in.readParcelable(UploadNotificationStatusConfig.class.getClassLoader());
+        this.isSingleNotificationMode = in.readByte() != 0;
     }
 
-    public static final Creator<UploadNotificationConfig> CREATOR = new Creator<UploadNotificationConfig>() {
+    public static final Creator<UploadNotificationConfig> CREATOR
+            = new Creator<UploadNotificationConfig>() {
         @Override
         public UploadNotificationConfig createFromParcel(Parcel source) {
             return new UploadNotificationConfig(source);

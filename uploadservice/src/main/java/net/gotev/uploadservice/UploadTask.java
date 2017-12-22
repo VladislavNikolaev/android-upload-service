@@ -22,6 +22,7 @@ import java.util.List;
 /**
  * Base class to subclass when creating upload tasks. It contains the logic common to all the tasks,
  * such as notification management, status broadcast, retry logic and some utility methods.
+ *
  * @author Aleksandar Gotev
  */
 public abstract class UploadTask implements Runnable {
@@ -95,6 +96,7 @@ public abstract class UploadTask implements Runnable {
 
     /**
      * Implementation of the upload logic.
+     *
      * @throws Exception if an error occurs
      */
     abstract protected void upload() throws Exception;
@@ -102,7 +104,8 @@ public abstract class UploadTask implements Runnable {
     /**
      * Implement in subclasses to be able to do something when the upload is successful.
      */
-    protected void onSuccessfulUpload() {}
+    protected void onSuccessfulUpload() {
+    }
 
     public UploadTask() {
         startTime = new Date().getTime();
@@ -114,7 +117,7 @@ public abstract class UploadTask implements Runnable {
      * custom parameters set in {@link UploadRequest#initializeIntent(Intent)} method.
      *
      * @param service Upload Service instance. You should use this reference as your context.
-     * @param intent intent sent to the service to start the upload
+     * @param intent  intent sent to the service to start the upload
      * @throws IOException if an I/O exception occurs while initializing
      */
     protected void init(UploadService service, Intent intent) throws IOException {
@@ -170,7 +173,8 @@ public abstract class UploadTask implements Runnable {
                     while (shouldContinue && System.currentTimeMillis() < (beforeSleepTs + errorDelay)) {
                         try {
                             Thread.sleep(2000);
-                        } catch (Throwable ignored) { }
+                        } catch (Throwable ignored) {
+                        }
                     }
 
                     errorDelay *= UploadService.BACKOFF_MULTIPLIER;
@@ -189,6 +193,7 @@ public abstract class UploadTask implements Runnable {
     /**
      * Sets the last time the notification was updated.
      * This is handled automatically and you should never call this method.
+     *
      * @param lastProgressNotificationTime time in milliseconds
      * @return {@link UploadTask}
      */
@@ -201,6 +206,7 @@ public abstract class UploadTask implements Runnable {
      * Sets the upload notification ID for this task.
      * This gets called by {@link UploadService} when the task is initialized.
      * You should never call this method.
+     *
      * @param notificationId notification ID
      * @return {@link UploadTask}
      */
@@ -213,7 +219,7 @@ public abstract class UploadTask implements Runnable {
      * Broadcasts a progress update.
      *
      * @param uploadedBytes number of bytes which has been uploaded to the server
-     * @param totalBytes total bytes of the request
+     * @param totalBytes    total bytes of the request
      */
     protected final void broadcastProgress(final long uploadedBytes, final long totalBytes) {
 
@@ -225,12 +231,12 @@ public abstract class UploadTask implements Runnable {
         setLastProgressNotificationTime(currentTime);
 
         Logger.debug(LOG_TAG, "Broadcasting upload progress for " + params.id
-                              + ": " + uploadedBytes + " bytes of " + totalBytes);
+                + ": " + uploadedBytes + " bytes of " + totalBytes);
 
         final UploadInfo uploadInfo = new UploadInfo(params.id, startTime, uploadedBytes,
-                                                     totalBytes, (attempts - 1),
-                                                     successfullyUploadedFiles,
-                                                     pathStringListFrom(params.files));
+                totalBytes, (attempts - 1),
+                successfullyUploadedFiles,
+                pathStringListFrom(params.files));
 
         BroadcastData data = new BroadcastData()
                 .setStatus(BroadcastData.Status.IN_PROGRESS)
@@ -277,9 +283,9 @@ public abstract class UploadTask implements Runnable {
                 + " for " + params.id);
 
         final UploadInfo uploadInfo = new UploadInfo(params.id, startTime, uploadedBytes,
-                                                     totalBytes, (attempts - 1),
-                                                     successfullyUploadedFiles,
-                                                     pathStringListFrom(params.files));
+                totalBytes, (attempts - 1),
+                successfullyUploadedFiles,
+                pathStringListFrom(params.files));
 
         final UploadNotificationConfig notificationConfig = params.notificationConfig;
 
@@ -287,7 +293,7 @@ public abstract class UploadTask implements Runnable {
             if (successfulUpload && notificationConfig.getCompleted().message != null) {
                 updateNotification(uploadInfo, notificationConfig.getCompleted());
 
-            } else if (notificationConfig.getError().message != null){
+            } else if (notificationConfig.getError().message != null) {
                 updateNotification(uploadInfo, notificationConfig.getError());
             }
         }
@@ -328,9 +334,9 @@ public abstract class UploadTask implements Runnable {
         Logger.debug(LOG_TAG, "Broadcasting cancellation for upload with ID: " + params.id);
 
         final UploadInfo uploadInfo = new UploadInfo(params.id, startTime, uploadedBytes,
-                                                     totalBytes, (attempts - 1),
-                                                     successfullyUploadedFiles,
-                                                     pathStringListFrom(params.files));
+                totalBytes, (attempts - 1),
+                successfullyUploadedFiles,
+                pathStringListFrom(params.files));
 
         final UploadNotificationConfig notificationConfig = params.notificationConfig;
 
@@ -359,6 +365,7 @@ public abstract class UploadTask implements Runnable {
 
     /**
      * Add a file to the list of the successfully uploaded files and remove it from the file list
+     *
      * @param file file on the device
      */
     protected final void addSuccessfullyUploadedFile(UploadFile file) {
@@ -373,7 +380,7 @@ public abstract class UploadTask implements Runnable {
      * This will automatically remove them from the params.getFiles() list.
      */
     protected final void addAllFilesToSuccessfullyUploadedFiles() {
-        for (Iterator<UploadFile> iterator = params.files.iterator(); iterator.hasNext();) {
+        for (Iterator<UploadFile> iterator = params.files.iterator(); iterator.hasNext(); ) {
             UploadFile file = iterator.next();
 
             if (!successfullyUploadedFiles.contains(file.path)) {
@@ -388,6 +395,7 @@ public abstract class UploadTask implements Runnable {
      * You must not modify this list in your subclasses! You can only read its contents.
      * If you want to add an element into it,
      * use {@link UploadTask#addSuccessfullyUploadedFile(UploadFile)}
+     *
      * @return list of strings
      */
     protected final List<String> getSuccessfullyUploadedFiles() {
@@ -409,9 +417,9 @@ public abstract class UploadTask implements Runnable {
                 + params.id + ". " + exception.getMessage());
 
         final UploadInfo uploadInfo = new UploadInfo(params.id, startTime, uploadedBytes,
-                                                     totalBytes, (attempts - 1),
-                                                     successfullyUploadedFiles,
-                                                     pathStringListFrom(params.files));
+                totalBytes, (attempts - 1),
+                successfullyUploadedFiles,
+                pathStringListFrom(params.files));
 
         final UploadNotificationConfig notificationConfig = params.notificationConfig;
 
@@ -442,10 +450,12 @@ public abstract class UploadTask implements Runnable {
     /**
      * If the upload task is initialized with a notification configuration, this handles its
      * creation.
+     *
      * @param uploadInfo upload information and statistics
      */
     private void createNotification(UploadInfo uploadInfo) {
-        if (params.notificationConfig == null || params.notificationConfig.getProgress().message == null) return;
+        if (params.notificationConfig == null || params.notificationConfig.getProgress().message == null)
+            return;
 
         UploadNotificationStatusConfig statusConfig = params.notificationConfig.getProgress();
         notificationCreationTimeMillis = System.currentTimeMillis();
@@ -476,10 +486,12 @@ public abstract class UploadTask implements Runnable {
     /**
      * Informs the {@link UploadService} that the task has made some progress. You should call this
      * method from your task whenever you have successfully transferred some bytes to the server.
+     *
      * @param uploadInfo upload information and statistics
      */
     private void updateNotificationProgress(UploadInfo uploadInfo) {
-        if (params.notificationConfig == null || params.notificationConfig.getProgress().message == null) return;
+        if (params.notificationConfig == null || params.notificationConfig.getProgress().message == null)
+            return;
 
         UploadNotificationStatusConfig statusConfig = params.notificationConfig.getProgress();
 
@@ -492,7 +504,7 @@ public abstract class UploadTask implements Runnable {
                 .setLargeIcon(statusConfig.largeIcon)
                 .setColor(statusConfig.iconColorResourceID)
                 .setGroup(UploadService.NAMESPACE)
-                .setProgress((int)uploadInfo.getTotalBytes(), (int)uploadInfo.getUploadedBytes(), false)
+                .setProgress((int) uploadInfo.getTotalBytes(), (int) uploadInfo.getUploadedBytes(), false)
                 .setOngoing(true);
 
         statusConfig.addActionsToNotificationBuilder(notification);
@@ -541,8 +553,12 @@ public abstract class UploadTask implements Runnable {
 
             // this is needed because the main notification used to show progress is ongoing
             // and a new one has to be created to allow the user to dismiss it
-            uploadInfo.setNotificationID(notificationId + 1);
-            notificationManager.notify(notificationId + 1, notification.build());
+            int progressNotificationId = notificationId;
+            if (!params.notificationConfig.isSingleNotificationMode()) {
+                progressNotificationId = notificationId + 1;
+            }
+            uploadInfo.setNotificationID(progressNotificationId);
+            notificationManager.notify(progressNotificationId, notification.build());
         }
     }
 

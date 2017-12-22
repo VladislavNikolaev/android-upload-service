@@ -267,11 +267,18 @@ public final class UploadService extends Service {
 
         clearIdleTimer();
 
-        // increment by 2 because the notificationIncrementalId + 1 is used internally
-        // in each UploadTask. Check its sources for more info about this.
-        notificationIncrementalId += 2;
+
+        int notificationId;
+        if(currentTask.params.notificationConfig.isSingleNotificationMode()){
+            notificationId = UPLOAD_NOTIFICATION_BASE_ID;
+        } else {
+            // increment by 2 because the notificationIncrementalId + 1 is used internally
+            // in each UploadTask. Check its sources for more info about this.
+            notificationIncrementalId += 2;
+            notificationId = UPLOAD_NOTIFICATION_BASE_ID + notificationIncrementalId;
+        }
         currentTask.setLastProgressNotificationTime(0)
-                   .setNotificationId(UPLOAD_NOTIFICATION_BASE_ID + notificationIncrementalId);
+                   .setNotificationId(notificationId);
 
         uploadTasksMap.put(currentTask.params.id, currentTask);
         uploadThreadPool.execute(currentTask);
