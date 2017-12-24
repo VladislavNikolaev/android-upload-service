@@ -476,11 +476,8 @@ public abstract class UploadTask implements Runnable {
 
         Notification builtNotification = notification.build();
 
-        if (service.holdForegroundNotification(params.id, builtNotification)) {
-            notificationManager.cancel(notificationId);
-        } else {
-            notificationManager.notify(notificationId, builtNotification);
-        }
+        service.holdForegroundNotification(params.id, builtNotification);
+        notificationManager.notify(notificationId, builtNotification);
     }
 
     /**
@@ -511,11 +508,8 @@ public abstract class UploadTask implements Runnable {
 
         Notification builtNotification = notification.build();
 
-        if (service.holdForegroundNotification(params.id, builtNotification)) {
-            notificationManager.cancel(notificationId);
-        } else {
-            notificationManager.notify(notificationId, builtNotification);
-        }
+        service.holdForegroundNotification(params.id, builtNotification);
+        notificationManager.notify(notificationId, builtNotification);
     }
 
     private void setRingtone(NotificationCompat.Builder notification) {
@@ -529,8 +523,6 @@ public abstract class UploadTask implements Runnable {
 
     private void updateNotification(UploadInfo uploadInfo, UploadNotificationStatusConfig statusConfig) {
         if (params.notificationConfig == null) return;
-
-        notificationManager.cancel(notificationId);
 
         if (statusConfig.message == null) return;
 
