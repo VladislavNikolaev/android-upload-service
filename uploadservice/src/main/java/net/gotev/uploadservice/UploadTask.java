@@ -501,7 +501,7 @@ public abstract class UploadTask implements Runnable {
                 .setLargeIcon(statusConfig.largeIcon)
                 .setColor(statusConfig.iconColorResourceID)
                 .setGroup(UploadService.NAMESPACE)
-                .setProgress((int) uploadInfo.getTotalBytes(), (int) uploadInfo.getUploadedBytes(), false)
+                .setProgress(100, uploadInfo.getProgressPercent(), false)
                 .setOngoing(true);
 
         statusConfig.addActionsToNotificationBuilder(notification);
