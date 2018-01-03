@@ -135,7 +135,9 @@ public abstract class UploadTask implements Runnable {
             }
 
             if (notificationManager.getNotificationChannel(notificationChannelId) == null) {
-                NotificationChannel channel = new NotificationChannel(notificationChannelId, "Upload Service channel", NotificationManager.IMPORTANCE_HIGH);
+                NotificationChannel channel = new NotificationChannel(notificationChannelId,
+                        "Upload Service channel",
+                        NotificationManager.IMPORTANCE_LOW);
                 channel.enableVibration(false);
                 channel.enableLights(false);
                 notificationManager.createNotificationChannel(channel);
