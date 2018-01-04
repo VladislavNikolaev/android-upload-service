@@ -64,6 +64,7 @@ public final class UploadService extends Service {
      * notification configuration, the service will simply run in background mode.
      */
     public static boolean EXECUTE_IN_FOREGROUND = true;
+    public static boolean REMOVE_FOREGROUND_NOTIFICATION_ON_COMPLETE = true;
 
     /**
      * Sets the namespace used to broadcast events. Set this to your app namespace to avoid
@@ -407,7 +408,7 @@ public final class UploadService extends Service {
 
         if (EXECUTE_IN_FOREGROUND && uploadTasksMap.isEmpty()) {
             Logger.debug(TAG, "All tasks completed, stopping foreground execution");
-            stopForeground(true);
+            stopForeground(REMOVE_FOREGROUND_NOTIFICATION_ON_COMPLETE);
             shutdownIfThereArentAnyActiveTasks();
         }
     }
